@@ -16,12 +16,11 @@ const (
 
 import (
 	"github.com/gogf/gf/v2/container/gmap"
-{{.authImport}}
+	{{.authImport}}
 )
 
 const (
 	defaultName = "gz.config"
-	pathName    = "gz.cfg.path"
 )
 
 var instances = gmap.NewStrAnyMap(true)
@@ -32,17 +31,16 @@ type Config struct {
 	{{.jwtTrans}}
 }
 
-func SetPath(path string) {
-	instances.Set(pathName, path)
-}
-
-func Cfg() *Config {
-	path := instances.GetOrSet(pathName, "etc/{{.serviceName}}.yaml").(string)
+func LoadCfg(path string) *Config {
 	return instances.GetOrSetFuncLock(defaultName, func() interface{} {
 		var c Config
 		conf.MustLoad(path, &c)
 		return &c
 	}).(*Config)
+}
+
+func Cfg() *Config {
+	return instances.Get(defaultName).(*Config)
 }
 `
 

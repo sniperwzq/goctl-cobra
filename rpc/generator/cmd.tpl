@@ -5,7 +5,12 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	{{.importPackages}}
+	"github.com/zeromicro/go-zero/core/service"
+    "github.com/zeromicro/go-zero/zrpc"
+    "google.golang.org/grpc"
+    "google.golang.org/grpc/reflection"
+
+	{{.imports}}
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -43,15 +48,15 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	rootCmd.AddCommand(apiCmd)
-    apiCmd.Flags().StringVarP(&configFile, "conf", "f", "etc/{{.serviceName}}.yaml", "config file")
+	rootCmd.AddCommand(rpcCmd)
+    rpcCmd.Flags().StringVarP(&configFile, "conf", "f", "etc/{{.serviceName}}.yaml", "config file")
 }
 
 var configFile string
 
-// apiCmd represents the api command
-var apiCmd = &cobra.Command{
-	Use:   "api",
+// rpcCmd represents the api command
+var rpcCmd = &cobra.Command{
+	Use:   "rpc",
 	Short: "A brief description of your command",
 	Long:  `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -61,13 +66,19 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		c := config.LoadCfg(configFile)
-		server := rest.MustNewServer(c.RestConf)
-		defer server.Stop()
-
 		ctx := svc.NewServiceContext(*c)
-		handler.RegisterHandlers(server, ctx)
+        svr := server.New{{.serviceNew}}Server(ctx)
 
-		fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
-		server.Start()
+        s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
+            {{.pkg}}.Register{{.service}}Server(grpcServer, svr)
+
+            if c.Mode == service.DevMode || c.Mode == service.TestMode {
+                reflection.Register(grpcServer)
+            }
+        })
+        defer s.Stop()
+
+        fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
+        s.Start()
 	},
 }

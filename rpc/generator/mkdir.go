@@ -14,6 +14,7 @@ import (
 const (
 	wd       = "wd"
 	etc      = "etc"
+	cmd      = "cmd"
 	internal = "internal"
 	config   = "config"
 	logic    = "logic"
@@ -29,6 +30,7 @@ type (
 	DirContext interface {
 		GetCall() Dir
 		GetEtc() Dir
+		GetCmd() Dir
 		GetInternal() Dir
 		GetConfig() Dir
 		GetLogic() Dir
@@ -58,6 +60,7 @@ type (
 func mkdir(ctx *ctx.ProjectContext, proto parser.Proto, _ *conf.Config, c *ZRpcContext) (DirContext, error) {
 	inner := make(map[string]Dir)
 	etcDir := filepath.Join(ctx.WorkDir, "etc")
+	cmdDir := filepath.Join(ctx.WorkDir, "cmd")
 	internalDir := filepath.Join(ctx.WorkDir, "internal")
 	configDir := filepath.Join(internalDir, "config")
 	logicDir := filepath.Join(internalDir, "logic")
@@ -84,6 +87,11 @@ func mkdir(ctx *ctx.ProjectContext, proto parser.Proto, _ *conf.Config, c *ZRpcC
 		Filename: etcDir,
 		Package:  filepath.ToSlash(filepath.Join(ctx.Path, strings.TrimPrefix(etcDir, ctx.Dir))),
 		Base:     filepath.Base(etcDir),
+	}
+	inner[cmd] = Dir{
+		Filename: cmdDir,
+		Package:  filepath.ToSlash(filepath.Join(ctx.Path, strings.TrimPrefix(cmdDir, ctx.Dir))),
+		Base:     filepath.Base(cmdDir),
 	}
 	inner[internal] = Dir{
 		Filename: internalDir,
@@ -162,6 +170,10 @@ func (d *defaultDirContext) GetCall() Dir {
 
 func (d *defaultDirContext) GetEtc() Dir {
 	return d.inner[etc]
+}
+
+func (d *defaultDirContext) GetCmd() Dir {
+	return d.inner[cmd]
 }
 
 func (d *defaultDirContext) GetInternal() Dir {
