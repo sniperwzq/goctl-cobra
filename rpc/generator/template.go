@@ -13,6 +13,7 @@ const (
 	callFunctionTemplateFile          = "call-func.tpl"
 	configTemplateFileFile            = "config.tpl"
 	etcTemplateFileFile               = "etc.tpl"
+	cmdTemplateFileFile               = "cmd.tpl"
 	logicTemplateFileFile             = "logic.tpl"
 	logicFuncTemplateFileFile         = "logic-func.tpl"
 	mainTemplateFile                  = "main.tpl"

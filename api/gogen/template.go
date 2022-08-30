@@ -11,6 +11,7 @@ const (
 	configTemplateFile          = "config.tpl"
 	contextTemplateFile         = "context.tpl"
 	etcTemplateFile             = "etc.tpl"
+	cmdTemplateFile             = "cmd.tpl"
 	handlerTemplateFile         = "handler.tpl"
 	logicTemplateFile           = "logic.tpl"
 	mainTemplateFile            = "main.tpl"
@@ -24,6 +25,7 @@ var templates = map[string]string{
 	configTemplateFile:          configTemplate,
 	contextTemplateFile:         contextTemplate,
 	etcTemplateFile:             etcTemplate,
+	cmdTemplateFile:             cmdTemplate,
 	handlerTemplateFile:         handlerTemplate,
 	logicTemplateFile:           logicTemplate,
 	mainTemplateFile:            mainTemplate,

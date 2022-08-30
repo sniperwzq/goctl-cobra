@@ -26,11 +26,8 @@ func (g *Generator) GenMain(ctx DirContext, proto parser.Proto, cfg *conf.Config
 
 	fileName := filepath.Join(ctx.GetMain().Filename, fmt.Sprintf("%v.go", mainFilename))
 	imports := make([]string, 0)
-	pbImport := fmt.Sprintf(`"%v"`, ctx.GetPb().Package)
-	svcImport := fmt.Sprintf(`"%v"`, ctx.GetSvc().Package)
-	remoteImport := fmt.Sprintf(`"%v"`, ctx.GetServer().Package)
-	configImport := fmt.Sprintf(`"%v"`, ctx.GetConfig().Package)
-	imports = append(imports, configImport, pbImport, remoteImport, svcImport)
+	cmdImport := fmt.Sprintf(`"%v"`, ctx.GetCmd().Package)
+	imports = append(imports, cmdImport)
 	text, err := pathx.LoadTemplate(category, mainTemplateFile, mainTemplate)
 	if err != nil {
 		return err
