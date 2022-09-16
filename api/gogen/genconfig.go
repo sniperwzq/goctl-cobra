@@ -15,15 +15,14 @@ const (
 	configTemplate = `package config
 
 import (
-	"sync"
 	{{.authImport}}
+	"gitlab.zxmn2018.com/bigdata/go-zhise/single"
 )
 
 const (
 	defaultName = "gz.config"
 )
 
-var instances = sync.Map{}
 var gzConfPath string = "etc/{{.configName}}.yaml"
 
 type Config struct {
@@ -42,12 +41,11 @@ func Cfg() *Config {
 }
 
 func doGetOrLoadConf(path string) *Config {
-	actual, _ := instances.LoadOrStore(defaultName, func() interface{} {
+	return single.GetOrSetFunc(defaultName, func() interface{} {
 		var c Config
 		conf.MustLoad(path, &c)
 		return &c
-	}())
-	return actual.(*Config)
+	}).(*Config)
 }
 `
 
