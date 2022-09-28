@@ -15,15 +15,15 @@ const (
 	configTemplate = `package config
 
 import (
-	"github.com/gogf/gf/v2/container/gmap"
 	{{.authImport}}
+	"gitlab.zxmn2018.com/bigdata/go-zhise/single"
 )
 
 const (
 	defaultName = "gz.config"
 )
 
-var instances = gmap.NewStrAnyMap(true)
+var gzConfPath string = "etc/{{.configName}}.yaml"
 
 type Config struct {
 	rest.RestConf
@@ -32,15 +32,20 @@ type Config struct {
 }
 
 func LoadCfg(path string) *Config {
-	return instances.GetOrSetFuncLock(defaultName, func() interface{} {
+	gzConfPath = path
+	return doGetOrLoadConf(gzConfPath)
+}
+
+func Cfg() *Config {
+	return doGetOrLoadConf(gzConfPath)
+}
+
+func doGetOrLoadConf(path string) *Config {
+	return single.GetOrSetFunc(defaultName, func() interface{} {
 		var c Config
 		conf.MustLoad(path, &c)
 		return &c
 	}).(*Config)
-}
-
-func Cfg() *Config {
-	return instances.Get(defaultName).(*Config)
 }
 `
 
@@ -63,6 +68,10 @@ func genConfig(dir string, rootPkg string, cfg *config.Config, api *spec.ApiSpec
 	}
 
 	service := api.Service
+	configName, err := format.FileNamingFormat(cfg.NamingFormat, service.Name)
+	if err != nil {
+		return err
+	}
 
 	authNames := getAuths(api)
 	var auths []string
@@ -87,6 +96,7 @@ func genConfig(dir string, rootPkg string, cfg *config.Config, api *spec.ApiSpec
 		data: map[string]string{
 			"authImport":  genConfigImports(rootPkg),
 			"serviceName": service.Name,
+			"configName":  configName,
 			"auth":        strings.Join(auths, "\n"),
 			"jwtTrans":    strings.Join(jwtTransList, "\n"),
 		},
